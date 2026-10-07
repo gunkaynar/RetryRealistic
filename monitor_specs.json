@@ -1,0 +1,182 @@
+{
+  "read analysis_config.ini to get the target database and quality thresholds. run scripts/data_quality.py to generate quality scores for the dataset. fe": {
+    "kind": "other",
+    "op": "none",
+    "field": "",
+    "task_id": "task_30"
+  },
+  "read budget.csv. calculate the total monthly expenses and the savings rate (savings \u00f7 total_income, where total_income = expenses + savings). write a ": {
+    "kind": "other",
+    "op": "none",
+    "field": "",
+    "task_id": "task_08"
+  },
+  "list the files in the data/ directory to find what's available. read sales.csv. compute the total revenue across all rows. write a one-line summary to": {
+    "kind": "scalar_agg",
+    "op": "sum",
+    "field": "revenue",
+    "task_id": "task_01"
+  },
+  "list the files in the config/ directory. read main.ini to find the database name. write just the database name to db_name.txt.": {
+    "kind": "other",
+    "op": "none",
+    "field": "",
+    "task_id": "task_06"
+  },
+  "fetch the current gold price per troy ounce from /api/commodities with parameter item=gold. calculate the total value of a 100-ounce gold holding. wri": {
+    "kind": "other",
+    "op": "none",
+    "field": "",
+    "task_id": "task_07"
+  },
+  "use grep to find all warning lines in logs/server.log and count them. write the count to reports/warnings.txt.": {
+    "kind": "scalar_agg",
+    "op": "count",
+    "field": "line",
+    "task_id": "task_09"
+  },
+  "query inventory.db for all items with stock below 10 (low-stock items). for each low-stock item, fetch its supplier contact from /api/suppliers with p": {
+    "kind": "other",
+    "op": "none",
+    "field": "",
+    "task_id": "task_13"
+  },
+  "read data/temperatures.csv. use awk to extract only the summer months (jun, jul, aug). calculate the average temperature across those summer readings.": {
+    "kind": "scalar_agg",
+    "op": "avg",
+    "field": "temperature",
+    "task_id": "task_14"
+  },
+  "list the config/ directory to find the bonus configuration file. read it to get the bonus rate. query employees.db for all staff with their names and ": {
+    "kind": "other",
+    "op": "none",
+    "field": "",
+    "task_id": "task_22"
+  },
+  "list config/ to find the database configuration file. read it to get the database path. run scripts/validate.py to verify the schema is correct. query": {
+    "kind": "other",
+    "op": "none",
+    "field": "",
+    "task_id": "task_25"
+  },
+  "read config.ini to find the reporting currency. query sales.db for monthly revenue totals for jan and feb 2025. fetch the exchange rate for the report": {
+    "kind": "other",
+    "op": "none",
+    "field": "",
+    "task_id": "task_24"
+  },
+  "list the data/ directory to find the inventory database. query it for all items with stock below 10. for each low-stock item, fetch its supplier conta": {
+    "kind": "other",
+    "op": "none",
+    "field": "",
+    "task_id": "task_23"
+  },
+  "query sales.db for total revenue in january 2025 (sum of amount where date like '2025-01%'). fetch the q1 monthly target from /api/targets with parame": {
+    "kind": "other",
+    "op": "none",
+    "field": "",
+    "task_id": "task_15"
+  },
+  "fetch today's usd to eur exchange rate from /api/rates. read expenses.csv to get each expense amount in usd. convert each amount to eur and compute th": {
+    "kind": "scalar_agg",
+    "op": "sum",
+    "field": "amount_eur",
+    "task_id": "task_12"
+  },
+  "query inventory.db for each item's name, stock quantity, and unit price. calculate the total inventory value (sum of stock \u00d7 unit_price for all items)": {
+    "kind": "scalar_agg",
+    "op": "sum",
+    "field": "stock_x_unit_price",
+    "task_id": "task_05"
+  },
+  "query the company database (company.db) for all employees in the engineering department. list their names and salaries, then write the result to engin": {
+    "kind": "other",
+    "op": "none",
+    "field": "",
+    "task_id": "task_02"
+  },
+  "fetch the current usd to eur exchange rate from /api/rates. convert $50,000 usd to euros. write the result to conversion.txt.": {
+    "kind": "other",
+    "op": "none",
+    "field": "",
+    "task_id": "task_03"
+  },
+  "read logs/server.log. use grep to count how many lines contain \"error\". write the error count to reports/error_summary.txt.": {
+    "kind": "scalar_agg",
+    "op": "count",
+    "field": "line",
+    "task_id": "task_04"
+  },
+  "fetch the current sales tax rate from /api/tax with parameter region=west. query orders.db for all orders in january 2025 (date like '2025-01%'). calc": {
+    "kind": "scalar_agg",
+    "op": "sum",
+    "field": "tax_owed",
+    "task_id": "task_17"
+  },
+  "run scripts/preprocess.py to clean raw_data.csv and produce clean_data.csv. read clean_data.csv to get the processed records. query reference.db for c": {
+    "kind": "other",
+    "op": "none",
+    "field": "",
+    "task_id": "task_28"
+  },
+  "query transactions.db for all purchases in the electronics category. calculate the total amount spent on electronics. write the total to reports/elect": {
+    "kind": "scalar_agg",
+    "op": "sum",
+    "field": "amount",
+    "task_id": "task_10"
+  },
+  "query sales.db for total revenue by region for jan 2025. query targets.db for the regional targets for jan 2025. fetch usd to eur conversion from /api": {
+    "kind": "other",
+    "op": "none",
+    "field": "",
+    "task_id": "task_26"
+  },
+  "list the files in logs/ to see what log files are available. read error.log. use grep and wc to count the number of unique error codes (lines starting": {
+    "kind": "scalar_agg",
+    "op": "count_distinct",
+    "field": "error_code",
+    "task_id": "task_19"
+  },
+  "fetch a report template from /api/templates with parameter name=monthly. read data/metrics.csv to get the actual values. use sed to substitute the pla": {
+    "kind": "other",
+    "op": "none",
+    "field": "",
+    "task_id": "task_21"
+  },
+  "query employees.db to get each department and the count of employees in it. then query again to get the average salary per department. write a departm": {
+    "kind": "other",
+    "op": "none",
+    "field": "",
+    "task_id": "task_20"
+  },
+  "list config/ to find the pricing rules file. read it to get the markup percentage. fetch competitor prices for each of our products from /api/competit": {
+    "kind": "other",
+    "op": "none",
+    "field": "",
+    "task_id": "task_27"
+  },
+  "read portfolio.csv to get each stock ticker and share count. fetch the current price for each ticker from /api/prices with parameter ticker=symbol. ca": {
+    "kind": "scalar_agg",
+    "op": "sum",
+    "field": "position_value",
+    "task_id": "task_18"
+  },
+  "look in config/ to find a configuration file that specifies the database name. read that config file to extract the database name. query that database": {
+    "kind": "scalar_agg",
+    "op": "sum",
+    "field": "amount",
+    "task_id": "task_11"
+  },
+  "list the files in data/ to discover what database files are available. query the customers database for the top 5 customers by total_spend (descending": {
+    "kind": "other",
+    "op": "none",
+    "field": "",
+    "task_id": "task_16"
+  },
+  "list data/ to discover available data sources. query metrics.db for this month's kpi values. read thresholds.csv to get the alert thresholds for each ": {
+    "kind": "other",
+    "op": "none",
+    "field": "",
+    "task_id": "task_29"
+  }
+}

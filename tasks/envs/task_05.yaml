@@ -1,0 +1,35 @@
+task_id: task_05
+description: >
+  Query inventory.db for each item's name, stock quantity, and unit price.
+  Calculate the total inventory value (sum of stock × unit_price for all items).
+  Write a summary to reports/inventory_value.txt.
+difficulty: easy
+min_steps: 3
+expected_tools: [sql_query, calculator, file_write]
+ground_truth: "Total inventory value = $15,996.97"
+
+fault_target:
+  tool: sql_query
+  match: items
+
+databases:
+  - name: inventory.db
+    permissions: "rw-"
+    tables:
+      - name: items
+        schema: >
+          CREATE TABLE items
+          (id INTEGER, name TEXT, stock INTEGER, category TEXT,
+           unit_price REAL, supplier TEXT)
+        rows:
+          - [1, "Laptop Stand",  5,   "Office",      45.99, "TechSupply Co"]
+          - [2, "USB Cable",     150, "Electronics",  8.99, "CablePro"]
+          - [3, "Monitor Arm",   8,   "Office",       89.50, "ErgoDesk Inc"]
+          - [4, "Webcam",        200, "Electronics",  49.99, "VisionTech"]
+          - [5, "Desk Lamp",     3,   "Office",       34.99, "BrightLight Ltd"]
+          - [6, "Keyboard",      45,  "Electronics",  79.99, "TypeWell"]
+
+filesystem:
+  - path: reports/
+    is_dir: true
+    permissions: "rwx"

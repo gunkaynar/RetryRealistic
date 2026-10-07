@@ -1,0 +1,32 @@
+task_id: task_04
+description: >
+  Read logs/server.log. Use grep to count how many lines contain "ERROR".
+  Write the error count to reports/error_summary.txt.
+difficulty: easy
+min_steps: 3
+expected_tools: [file_read, shell_exec, file_write]
+ground_truth: "3 ERROR lines found in server.log"
+
+fault_target:
+  tool: file_read
+  match: server.log
+
+filesystem:
+  - path: logs/server.log
+    permissions: "rw-"
+    content: |
+      [INFO]  2025-01-01 08:00:01 Server started
+      [INFO]  2025-01-01 08:00:02 Loaded configuration
+      [WARNING] 2025-01-01 08:01:15 High memory usage: 82%
+      [INFO]  2025-01-01 08:05:00 Request processed
+      [ERROR] 2025-01-01 08:05:30 Database connection timeout
+      [INFO]  2025-01-01 08:06:00 Retry successful
+      [WARNING] 2025-01-01 08:10:22 Disk usage above 90%
+      [ERROR] 2025-01-01 08:12:45 Failed to write log file
+      [INFO]  2025-01-01 08:15:00 Backup completed
+      [INFO]  2025-01-01 08:20:00 Health check passed
+      [ERROR] 2025-01-01 08:32:00 Authentication failed for user admin
+      [INFO]  2025-01-01 08:35:00 Cache cleared
+  - path: reports/
+    is_dir: true
+    permissions: "rwx"

@@ -1,0 +1,59 @@
+task_id: task_29
+description: >
+  List data/ to discover available data sources.
+  Query metrics.db for this month's KPI values.
+  Read thresholds.csv to get the alert thresholds for each KPI.
+  Calculate which KPIs are above or below threshold.
+  Fetch current industry benchmarks from /api/benchmarks for each KPI.
+  Write an alert report with anomaly flags to reports/alert_report.txt.
+difficulty: hard
+min_steps: 7
+expected_tools: [list_dir, sql_query, file_read, calculator, http_request, file_write]
+ground_truth: "3 KPIs flagged: error_rate ABOVE threshold, response_time ABOVE benchmark, uptime OK"
+
+fault_target:
+  tool: sql_query
+  match: metrics
+
+filesystem:
+  - path: data/
+    is_dir: true
+    permissions: "rwx"
+  - path: data/notes.txt
+    permissions: "r--"
+    content: "KPI data is in metrics.db. Thresholds are in thresholds.csv."
+  - path: thresholds.csv
+    permissions: "r--"
+    content: |
+      kpi,max_threshold,min_threshold,unit
+      error_rate,2.0,0.0,percent
+      response_time,500,0,ms
+      uptime,100.0,99.5,percent
+      throughput,100.0,50.0,req_per_sec
+  - path: reports/
+    is_dir: true
+    permissions: "rwx"
+
+databases:
+  - name: data/metrics.db
+    permissions: "rw-"
+    tables:
+      - name: metrics
+        schema: >
+          CREATE TABLE metrics
+          (id INTEGER, kpi TEXT, value REAL, month TEXT, source TEXT)
+        rows:
+          - [1, "error_rate",    3.8,  "2025-01", "monitoring"]
+          - [2, "response_time", 620,  "2025-01", "apm"]
+          - [3, "uptime",        99.7, "2025-01", "monitoring"]
+          - [4, "throughput",    78.5, "2025-01", "apm"]
+
+web_pages:
+  - route: /api/benchmarks
+    query_param: kpi
+    responses:
+      error_rate:    {"kpi": "error_rate",    "industry_avg": 1.5, "unit": "percent"}
+      response_time: {"kpi": "response_time", "industry_avg": 450, "unit": "ms"}
+      uptime:        {"kpi": "uptime",        "industry_avg": 99.8, "unit": "percent"}
+      throughput:    {"kpi": "throughput",    "industry_avg": 85.0, "unit": "req_per_sec"}
+    default_response: {"error": "benchmark not found"}

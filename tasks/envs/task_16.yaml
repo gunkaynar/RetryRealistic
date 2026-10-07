@@ -1,0 +1,42 @@
+task_id: task_16
+description: >
+  List the files in data/ to discover what database files are available.
+  Query the customers database for the top 5 customers by total_spend (descending).
+  Write a ranked list of their names and spend amounts to reports/top_customers.txt.
+difficulty: medium
+min_steps: 3
+expected_tools: [list_dir, sql_query, file_write]
+ground_truth: "Top 5: Globex ($48,200), Initech ($41,500), Umbrella ($38,700), Acme ($35,900), Stark ($29,400)"
+
+fault_target:
+  tool: sql_query
+  match: customers
+
+filesystem:
+  - path: data/
+    is_dir: true
+    permissions: "rwx"
+  - path: data/readme.txt
+    permissions: "r--"
+    content: "This directory contains customer and order data."
+  - path: reports/
+    is_dir: true
+    permissions: "rwx"
+
+databases:
+  - name: data/customers.db
+    permissions: "rw-"
+    tables:
+      - name: customers
+        schema: >
+          CREATE TABLE customers
+          (id INTEGER, name TEXT, industry TEXT, total_spend REAL, since_year INTEGER)
+        rows:
+          - [1, "Acme Corp",     "Manufacturing", 35900.00, 2020]
+          - [2, "Globex",        "Technology",    48200.00, 2019]
+          - [3, "Initech",       "Finance",       41500.00, 2021]
+          - [4, "Umbrella Ltd",  "Pharma",        38700.00, 2020]
+          - [5, "Stark Ind",     "Defense",       29400.00, 2022]
+          - [6, "Wayne Ent",     "Real Estate",   22100.00, 2023]
+          - [7, "Dunder Mifflin","Retail",        18500.00, 2022]
+          - [8, "Prestige WW",   "Services",      14200.00, 2023]

@@ -1,0 +1,54 @@
+task_id: task_24
+description: >
+  Read config.ini to find the reporting currency.
+  Query sales.db for monthly revenue totals for Jan and Feb 2025.
+  Fetch the exchange rate for the reporting currency from /api/rates.
+  Convert the monthly totals to the reporting currency.
+  Calculate the month-over-month change. Save a P&L report to reports/pl_report.txt.
+difficulty: hard
+min_steps: 6
+expected_tools: [file_read, sql_query, http_request, calculator, file_write]
+ground_truth: "Reporting in GBP. Jan: $4,668=£3,688, Feb: $1,460=£1,153. MoM change: -68.7%"
+
+fault_target:
+  tool: file_read
+  match: config.ini
+
+web_pages:
+  - route: /api/rates
+    response:
+      usd_to_eur: 0.92
+      usd_to_gbp: 0.79
+      usd_to_jpy: 151.3
+      source: "FX Market Data"
+
+filesystem:
+  - path: config.ini
+    permissions: "r--"
+    content: |
+      [reporting]
+      currency=GBP
+      fiscal_year=2025
+      company=Acme Corp
+  - path: reports/
+    is_dir: true
+    permissions: "rwx"
+
+databases:
+  - name: sales.db
+    permissions: "rw-"
+    tables:
+      - name: sales
+        schema: >
+          CREATE TABLE sales
+          (id INTEGER, date TEXT, amount REAL, product TEXT, region TEXT)
+        rows:
+          - [1,  "2025-01-03", 450.00, "Widget A", "West"]
+          - [2,  "2025-01-07", 820.00, "Widget B", "East"]
+          - [3,  "2025-01-11", 310.00, "Widget A", "North"]
+          - [4,  "2025-01-18", 1200.00,"Widget C", "West"]
+          - [5,  "2025-01-22", 680.00, "Widget B", "South"]
+          - [6,  "2025-01-28", 540.00, "Widget A", "East"]
+          - [7,  "2025-01-30", 668.00, "Widget C", "North"]
+          - [8,  "2025-02-04", 920.00, "Widget A", "West"]
+          - [9,  "2025-02-10", 540.00, "Widget B", "East"]

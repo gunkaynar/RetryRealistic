@@ -1,0 +1,31 @@
+task_id: task_01
+description: >
+  List the files in the data/ directory to find what's available.
+  Read sales.csv. Compute the total revenue across all rows.
+  Write a one-line summary to reports/revenue_summary.txt.
+difficulty: easy
+min_steps: 4
+expected_tools: [list_dir, file_read, calculator, file_write]
+ground_truth: "Total revenue = $48,750.00 written to reports/revenue_summary.txt"
+
+fault_target:
+  tool: file_read
+  match: sales.csv
+
+filesystem:
+  - path: data/sales.csv
+    permissions: "rw-"
+    content: |
+      month,product,revenue,units
+      Jan,Widget A,12500.00,250
+      Jan,Widget B,8300.00,166
+      Feb,Widget A,11200.00,224
+      Feb,Widget B,7800.00,156
+      Mar,Widget A,5450.00,109
+      Mar,Widget B,3500.00,70
+  - path: data/readme.txt
+    permissions: "r--"
+    content: "This directory contains Q1 sales data."
+  - path: reports/
+    is_dir: true
+    permissions: "rwx"

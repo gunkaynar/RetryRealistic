@@ -1,0 +1,32 @@
+task_id: task_08
+description: >
+  Read budget.csv. Calculate the total monthly expenses and the savings rate
+  (savings ÷ total_income, where total_income = expenses + savings).
+  Write a summary with both figures to reports/budget_summary.txt.
+difficulty: easy
+min_steps: 3
+expected_tools: [file_read, calculator, file_write]
+ground_truth: "Total expenses = $4,850, savings = $500, savings rate = 9.35%"
+
+fault_target:
+  tool: file_read
+  match: budget.csv
+
+filesystem:
+  - path: budget.csv
+    permissions: "rw-"
+    content: |
+      category,amount
+      Rent,2500
+      Groceries,600
+      Utilities,200
+      Transport,350
+      Entertainment,400
+      Insurance,300
+      Savings,500
+      Dining,250
+      Clothing,150
+      Misc,100
+  - path: reports/
+    is_dir: true
+    permissions: "rwx"

@@ -1,0 +1,70 @@
+task_id: task_23
+description: >
+  List the data/ directory to find the inventory database.
+  Query it for all items with stock below 10.
+  For each low-stock item, fetch its supplier contact from /api/suppliers with parameter item=NAME.
+  Run the script scripts/generate_po.py with the low-stock items to produce purchase order text.
+  Save the purchase orders to reports/purchase_orders.txt.
+difficulty: hard
+min_steps: 6
+expected_tools: [list_dir, sql_query, http_request, shell_exec, file_write]
+ground_truth: "3 purchase orders generated for Laptop Stand, Monitor Arm, Desk Lamp"
+
+fault_target:
+  tool: sql_query
+  match: items
+
+filesystem:
+  - path: data/
+    is_dir: true
+    permissions: "rwx"
+  - path: data/notes.txt
+    permissions: "r--"
+    content: "See inventory.db for current stock levels."
+  - path: scripts/generate_po.py
+    permissions: "r-x"
+    content: |
+      #!/usr/bin/env python3
+      """Generate purchase order text. Usage: python3 generate_po.py "Item1,Qty1;Item2,Qty2" """
+      import sys, datetime
+      items_arg = sys.argv[1] if len(sys.argv) > 1 else ""
+      today = datetime.date(2026, 5, 17).isoformat()
+      print(f"PURCHASE ORDER — Generated {today}")
+      print("-" * 40)
+      if items_arg:
+          for entry in items_arg.split(";"):
+              parts = entry.split(",")
+              name = parts[0].strip()
+              qty  = parts[1].strip() if len(parts) > 1 else "50"
+              print(f"Item: {name}  |  Reorder qty: {qty}")
+      else:
+          print("No items specified.")
+  - path: reports/
+    is_dir: true
+    permissions: "rwx"
+
+databases:
+  - name: data/inventory.db
+    permissions: "rw-"
+    tables:
+      - name: items
+        schema: >
+          CREATE TABLE items
+          (id INTEGER, name TEXT, stock INTEGER, reorder_qty INTEGER,
+           unit_price REAL, supplier TEXT)
+        rows:
+          - [1, "Laptop Stand",  5,  50,  45.99, "TechSupply Co"]
+          - [2, "USB Cable",     150, 200, 8.99, "CablePro"]
+          - [3, "Monitor Arm",   8,  25,  89.50, "ErgoDesk Inc"]
+          - [4, "Webcam",        200, 50, 49.99, "VisionTech"]
+          - [5, "Desk Lamp",     3,  30,  34.99, "BrightLight Ltd"]
+          - [6, "Keyboard",      45, 100, 79.99, "TypeWell"]
+
+web_pages:
+  - route: /api/suppliers
+    query_param: item
+    responses:
+      laptop stand:  {"supplier": "TechSupply Co",   "email": "orders@techsupply.com",   "lead_days": 5}
+      monitor arm:   {"supplier": "ErgoDesk Inc",    "email": "purchase@ergodesk.com",   "lead_days": 7}
+      desk lamp:     {"supplier": "BrightLight Ltd", "email": "sales@brightlight.com",   "lead_days": 3}
+    default_response: {"error": "supplier not found"}

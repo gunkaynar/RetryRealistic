@@ -1,0 +1,38 @@
+task_id: task_10
+description: >
+  Query transactions.db for all purchases in the Electronics category.
+  Calculate the total amount spent on Electronics.
+  Write the total to reports/electronics_summary.txt.
+difficulty: easy
+min_steps: 3
+expected_tools: [sql_query, calculator, file_write]
+ground_truth: "Total Electronics spend = $1,780.00 (3 transactions)"
+
+fault_target:
+  tool: sql_query
+  match: transactions
+
+databases:
+  - name: transactions.db
+    permissions: "rw-"
+    tables:
+      - name: transactions
+        schema: >
+          CREATE TABLE transactions
+          (id INTEGER, date TEXT, amount REAL, category TEXT, description TEXT)
+        rows:
+          - [1,  "2025-01-05", 120.50, "Food",        "Grocery store"]
+          - [2,  "2025-01-08", 750.00, "Electronics", "Headphones"]
+          - [3,  "2025-01-12",  45.00, "Food",        "Restaurant"]
+          - [4,  "2025-01-15", 1200.00,"Travel",      "Flight tickets"]
+          - [5,  "2025-01-18",  89.99, "Clothing",    "Winter jacket"]
+          - [6,  "2025-01-22", 550.00, "Electronics", "Tablet"]
+          - [7,  "2025-01-25",  32.00, "Food",        "Takeout"]
+          - [8,  "2025-01-28", 2100.00,"Travel",      "Hotel"]
+          - [9,  "2025-02-01",  67.50, "Clothing",    "Shoes"]
+          - [10, "2025-02-05", 480.00, "Electronics", "Keyboard"]
+
+filesystem:
+  - path: reports/
+    is_dir: true
+    permissions: "rwx"

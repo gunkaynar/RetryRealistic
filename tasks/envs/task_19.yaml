@@ -1,0 +1,37 @@
+task_id: task_19
+description: >
+  List the files in logs/ to see what log files are available.
+  Read error.log. Use grep and wc to count the number of unique error codes
+  (lines starting with ERROR followed by a 3-digit code).
+  Write the count and the list of unique codes to reports/error_report.txt.
+difficulty: medium
+min_steps: 4
+expected_tools: [list_dir, file_read, shell_exec, file_write]
+ground_truth: "4 unique error codes: E101, E204, E310, E422"
+
+fault_target:
+  tool: file_read
+  match: error.log
+
+filesystem:
+  - path: logs/error.log
+    permissions: "rw-"
+    content: |
+      ERROR E101 2025-01-01 08:05:30 Database connection timeout
+      ERROR E204 2025-01-01 08:12:45 Failed to write log file
+      ERROR E101 2025-01-01 09:00:12 Database connection timeout
+      ERROR E310 2025-01-01 09:15:00 Authentication failed for user admin
+      ERROR E204 2025-01-01 10:02:33 Disk write error
+      ERROR E422 2025-01-01 10:30:00 Invalid request format
+      ERROR E101 2025-01-02 08:01:00 Database connection timeout
+      ERROR E310 2025-01-02 11:00:00 Authentication failed for user guest
+  - path: logs/access.log
+    permissions: "r--"
+    content: |
+      GET /api/data 200 12ms
+      GET /api/users 200 8ms
+      POST /api/submit 201 45ms
+      GET /api/missing 404 3ms
+  - path: reports/
+    is_dir: true
+    permissions: "rwx"

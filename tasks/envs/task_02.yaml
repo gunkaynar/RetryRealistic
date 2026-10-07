@@ -1,0 +1,37 @@
+task_id: task_02
+description: >
+  Query the company database (company.db) for all employees in the Engineering department.
+  List their names and salaries, then write the result to engineering_team.txt.
+difficulty: easy
+min_steps: 2
+expected_tools: [sql_query, file_write]
+ground_truth: "5 engineers: Alice ($95k), Charlie ($88k), Eve ($102k), Grace ($91k), Ivan ($97k)"
+
+fault_target:
+  tool: sql_query
+  match: employees
+
+databases:
+  - name: company.db
+    permissions: "rw-"
+    tables:
+      - name: employees
+        schema: >
+          CREATE TABLE employees
+          (id INTEGER, name TEXT, department TEXT, salary REAL)
+        rows:
+          - [1, "Alice",   "Engineering", 95000]
+          - [2, "Bob",     "Marketing",   72000]
+          - [3, "Charlie", "Engineering", 88000]
+          - [4, "Diana",   "Sales",       68000]
+          - [5, "Eve",     "Engineering", 102000]
+          - [6, "Frank",   "Marketing",   75000]
+          - [7, "Grace",   "Engineering", 91000]
+          - [8, "Hank",    "Sales",       71000]
+          - [9, "Ivan",    "Engineering", 97000]
+          - [10, "Judy",   "HR",          65000]
+
+filesystem:
+  - path: reports/
+    is_dir: true
+    permissions: "rwx"

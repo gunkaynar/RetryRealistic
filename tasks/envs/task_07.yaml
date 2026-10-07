@@ -1,0 +1,27 @@
+task_id: task_07
+description: >
+  Fetch the current gold price per troy ounce from /api/commodities with parameter item=gold.
+  Calculate the total value of a 100-ounce gold holding.
+  Write the result to reports/holdings.txt.
+difficulty: easy
+min_steps: 3
+expected_tools: [http_request, calculator, file_write]
+ground_truth: "100 oz gold = $234,000 (at $2,340/oz)"
+
+fault_target:
+  tool: http_request
+  match: /api/commodities
+
+web_pages:
+  - route: /api/commodities
+    query_param: item
+    responses:
+      gold:   {"item": "gold",   "price_usd_per_oz": 2340.00, "unit": "troy oz"}
+      silver: {"item": "silver", "price_usd_per_oz": 27.50,   "unit": "troy oz"}
+      platinum: {"item": "platinum", "price_usd_per_oz": 950.00, "unit": "troy oz"}
+    default_response: {"error": "commodity not found"}
+
+filesystem:
+  - path: reports/
+    is_dir: true
+    permissions: "rwx"

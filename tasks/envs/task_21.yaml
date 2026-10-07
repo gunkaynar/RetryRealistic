@@ -1,0 +1,35 @@
+task_id: task_21
+description: >
+  Fetch a report template from /api/templates with parameter name=monthly.
+  Read data/metrics.csv to get the actual values.
+  Use sed to substitute the placeholder {{REVENUE}} and {{USERS}} in the template with real values.
+  Save the filled report to reports/monthly_report.txt.
+difficulty: medium
+min_steps: 5
+expected_tools: [http_request, file_read, shell_exec, file_write]
+ground_truth: "Report filled: Revenue = $82,400, Users = 3,241 substituted into template"
+
+fault_target:
+  tool: http_request
+  match: /api/templates
+
+web_pages:
+  - route: /api/templates
+    query_param: name
+    responses:
+      monthly: {"template": "Monthly Report\nRevenue: {{REVENUE}}\nActive Users: {{USERS}}\nStatus: On track", "format": "text"}
+      weekly:  {"template": "Weekly Summary\nRevenue: {{REVENUE}}\nStatus: Pending", "format": "text"}
+    default_response: {"error": "template not found"}
+
+filesystem:
+  - path: data/metrics.csv
+    permissions: "r--"
+    content: |
+      metric,value
+      revenue,82400
+      users,3241
+      churn_rate,2.3
+      nps_score,47
+  - path: reports/
+    is_dir: true
+    permissions: "rwx"
