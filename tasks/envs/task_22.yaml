@@ -1,0 +1,53 @@
+task_id: task_22
+description: >
+  List the config/ directory to find the bonus configuration file.
+  Read it to get the bonus rate.
+  Query employees.db for all staff with their names and salaries.
+  Calculate each employee's bonus (salary × bonus_rate) and the total bonus payout.
+  Write a bonus list to reports/bonus_list.txt.
+difficulty: medium
+min_steps: 5
+expected_tools: [list_dir, file_read, sql_query, calculator, file_write]
+ground_truth: "Bonus rate 10%. Total payout = $82,400 across 10 employees"
+
+fault_target:
+  tool: file_read
+  match: bonus_config.ini
+
+filesystem:
+  - path: config/bonus_config.ini
+    permissions: "r--"
+    content: |
+      [bonuses]
+      bonus_rate=0.10
+      fiscal_year=2025
+      approved_by=CFO
+  - path: config/app_config.ini
+    permissions: "r--"
+    content: |
+      [app]
+      version=3.0
+      env=production
+  - path: reports/
+    is_dir: true
+    permissions: "rwx"
+
+databases:
+  - name: employees.db
+    permissions: "rw-"
+    tables:
+      - name: employees
+        schema: >
+          CREATE TABLE employees
+          (id INTEGER, name TEXT, department TEXT, salary REAL)
+        rows:
+          - [1,  "Alice",   "Engineering", 95000]
+          - [2,  "Bob",     "Marketing",   72000]
+          - [3,  "Charlie", "Engineering", 88000]
+          - [4,  "Diana",   "Sales",       68000]
+          - [5,  "Eve",     "Engineering", 102000]
+          - [6,  "Frank",   "Marketing",   75000]
+          - [7,  "Grace",   "Engineering", 91000]
+          - [8,  "Hank",    "Sales",       71000]
+          - [9,  "Ivan",    "Engineering", 97000]
+          - [10, "Judy",    "HR",          65000]

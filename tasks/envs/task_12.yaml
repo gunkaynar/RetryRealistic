@@ -1,0 +1,37 @@
+task_id: task_12
+description: >
+  Fetch today's USD to EUR exchange rate from /api/rates.
+  Read expenses.csv to get each expense amount in USD.
+  Convert each amount to EUR and compute the total.
+  Save the converted expenses and total to reports/expenses_eur.txt.
+difficulty: medium
+min_steps: 4
+expected_tools: [http_request, file_read, calculator, file_write]
+ground_truth: "Total expenses: $4,347.49 USD = €3,999.69 EUR (rate 0.92)"
+
+fault_target:
+  tool: http_request
+  match: /api/rates
+
+web_pages:
+  - route: /api/rates
+    response:
+      usd_to_eur: 0.92
+      usd_to_gbp: 0.79
+      source: "FX Market Data"
+      as_of: "2026-05-17"
+
+filesystem:
+  - path: expenses.csv
+    permissions: "r--"
+    content: |
+      date,description,amount_usd
+      2025-01-02,Office supplies,125.00
+      2025-01-05,Software license,499.99
+      2025-01-10,Travel,1250.00
+      2025-01-15,Client lunch,87.50
+      2025-01-20,Equipment,2340.00
+      2025-01-25,Shipping,45.00
+  - path: reports/
+    is_dir: true
+    permissions: "rwx"

@@ -1,0 +1,46 @@
+task_id: task_17
+description: >
+  Fetch the current sales tax rate from /api/tax with parameter region=west.
+  Query orders.db for all orders in January 2025 (date like '2025-01%').
+  Calculate the tax owed on each order (amount × tax_rate) and the total tax liability.
+  Save the breakdown to reports/tax_liability.txt.
+difficulty: medium
+min_steps: 4
+expected_tools: [http_request, sql_query, calculator, file_write]
+ground_truth: "Tax rate 8.5%, 5 Jan orders totalling $3,460, tax = $294.10"
+
+fault_target:
+  tool: http_request
+  match: /api/tax
+
+web_pages:
+  - route: /api/tax
+    query_param: region
+    responses:
+      west:  {"region": "west",  "tax_rate": 0.085, "effective_date": "2025-01-01"}
+      east:  {"region": "east",  "tax_rate": 0.072, "effective_date": "2025-01-01"}
+      south: {"region": "south", "tax_rate": 0.065, "effective_date": "2025-01-01"}
+      north: {"region": "north", "tax_rate": 0.060, "effective_date": "2025-01-01"}
+    default_response: {"error": "region not found"}
+
+databases:
+  - name: orders.db
+    permissions: "rw-"
+    tables:
+      - name: orders
+        schema: >
+          CREATE TABLE orders
+          (id INTEGER, date TEXT, customer TEXT, amount REAL, region TEXT)
+        rows:
+          - [1, "2025-01-03", "Acme Corp",   450.00, "west"]
+          - [2, "2025-01-08", "Globex",      820.00, "west"]
+          - [3, "2025-01-14", "Initech",     310.00, "west"]
+          - [4, "2025-01-19", "Umbrella",   1200.00, "west"]
+          - [5, "2025-01-25", "Stark Ind",   680.00, "west"]
+          - [6, "2025-02-02", "Acme Corp",   540.00, "west"]
+          - [7, "2025-02-10", "Globex",      990.00, "west"]
+
+filesystem:
+  - path: reports/
+    is_dir: true
+    permissions: "rwx"

@@ -1,0 +1,50 @@
+task_id: task_11
+description: >
+  Look in config/ to find a configuration file that specifies the database name.
+  Read that config file to extract the database name.
+  Query that database for total Q1 2025 revenue (sum of amount where date starts with '2025-01').
+  Write the total to reports/q1_report.txt.
+difficulty: medium
+min_steps: 4
+expected_tools: [list_dir, file_read, sql_query, file_write]
+ground_truth: "Q1 2025 revenue = $4,668.00 from 7 transactions"
+
+fault_target:
+  tool: file_read
+  match: db_config.ini
+
+filesystem:
+  - path: config/db_config.ini
+    permissions: "r--"
+    content: |
+      [database]
+      name=sales.db
+      description=Main sales transaction database
+  - path: config/app_config.ini
+    permissions: "r--"
+    content: |
+      [app]
+      version=2.1
+      log_level=INFO
+  - path: reports/
+    is_dir: true
+    permissions: "rwx"
+
+databases:
+  - name: sales.db
+    permissions: "rw-"
+    tables:
+      - name: sales
+        schema: >
+          CREATE TABLE sales
+          (id INTEGER, date TEXT, amount REAL, product TEXT, region TEXT)
+        rows:
+          - [1,  "2025-01-03", 450.00, "Widget A", "West"]
+          - [2,  "2025-01-07", 820.00, "Widget B", "East"]
+          - [3,  "2025-01-11", 310.00, "Widget A", "North"]
+          - [4,  "2025-01-18", 1200.00,"Widget C", "West"]
+          - [5,  "2025-01-22", 680.00, "Widget B", "South"]
+          - [6,  "2025-01-28", 540.00, "Widget A", "East"]
+          - [7,  "2025-01-30", 668.00, "Widget C", "North"]
+          - [8,  "2025-02-04", 920.00, "Widget A", "West"]
+          - [9,  "2025-02-10", 375.00, "Widget B", "East"]

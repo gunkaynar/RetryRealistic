@@ -1,0 +1,46 @@
+task_id: task_15
+description: >
+  Query sales.db for total revenue in January 2025 (sum of amount where date like '2025-01%').
+  Fetch the Q1 monthly target from /api/targets with parameter month=Jan.
+  Calculate the gap (target - actual) and the attainment percentage (actual / target × 100).
+  Save a performance report to reports/jan_performance.txt.
+difficulty: medium
+min_steps: 5
+expected_tools: [sql_query, http_request, calculator, file_write]
+ground_truth: "Jan actual = $4,668, target = $5,000, gap = $332, attainment = 93.4%"
+
+fault_target:
+  tool: sql_query
+  match: sales
+
+databases:
+  - name: sales.db
+    permissions: "rw-"
+    tables:
+      - name: sales
+        schema: >
+          CREATE TABLE sales
+          (id INTEGER, date TEXT, amount REAL, product TEXT, region TEXT)
+        rows:
+          - [1,  "2025-01-03", 450.00, "Widget A", "West"]
+          - [2,  "2025-01-07", 820.00, "Widget B", "East"]
+          - [3,  "2025-01-11", 310.00, "Widget A", "North"]
+          - [4,  "2025-01-18", 1200.00,"Widget C", "West"]
+          - [5,  "2025-01-22", 680.00, "Widget B", "South"]
+          - [6,  "2025-01-28", 540.00, "Widget A", "East"]
+          - [7,  "2025-01-30", 668.00, "Widget C", "North"]
+          - [8,  "2025-02-04", 920.00, "Widget A", "West"]
+
+web_pages:
+  - route: /api/targets
+    query_param: month
+    responses:
+      jan: {"month": "January", "target_usd": 5000.00}
+      feb: {"month": "February", "target_usd": 5500.00}
+      mar: {"month": "March", "target_usd": 6000.00}
+    default_response: {"error": "month not found"}
+
+filesystem:
+  - path: reports/
+    is_dir: true
+    permissions: "rwx"

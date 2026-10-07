@@ -1,0 +1,58 @@
+task_id: task_26
+description: >
+  Query sales.db for total revenue by region for Jan 2025.
+  Query targets.db for the regional targets for Jan 2025.
+  Fetch USD to EUR conversion from /api/rates.
+  Convert all figures to EUR. Compute attainment percentage per region.
+  Write a regional performance report to reports/regional_performance.txt.
+difficulty: hard
+min_steps: 6
+expected_tools: [sql_query, sql_query, http_request, calculator, file_write]
+ground_truth: "West: actual €1,764.56/target €1,840, 95.9% attained. East: actual €1,251.20/target €1,380, 90.7%."
+
+fault_target:
+  tool: sql_query
+  match: sales
+
+databases:
+  - name: sales.db
+    permissions: "rw-"
+    tables:
+      - name: sales
+        schema: >
+          CREATE TABLE sales
+          (id INTEGER, date TEXT, amount REAL, product TEXT, region TEXT)
+        rows:
+          - [1, "2025-01-03",  450.00, "Widget A", "West"]
+          - [2, "2025-01-07",  820.00, "Widget B", "East"]
+          - [3, "2025-01-11",  310.00, "Widget A", "North"]
+          - [4, "2025-01-18", 1200.00, "Widget C", "West"]
+          - [5, "2025-01-22",  540.00, "Widget B", "East"]
+          - [6, "2025-01-28",  350.00, "Widget A", "North"]
+          - [7, "2025-01-30",  268.00, "Widget C", "West"]
+
+  - name: targets.db
+    permissions: "rw-"
+    tables:
+      - name: targets
+        schema: >
+          CREATE TABLE targets
+          (id INTEGER, month TEXT, region TEXT, target_usd REAL)
+        rows:
+          - [1, "2025-01", "West",  2000.00]
+          - [2, "2025-01", "East",  1500.00]
+          - [3, "2025-01", "North", 1200.00]
+          - [4, "2025-02", "West",  2200.00]
+          - [5, "2025-02", "East",  1700.00]
+
+web_pages:
+  - route: /api/rates
+    response:
+      usd_to_eur: 0.92
+      usd_to_gbp: 0.79
+      source: "FX Market Data"
+
+filesystem:
+  - path: reports/
+    is_dir: true
+    permissions: "rwx"

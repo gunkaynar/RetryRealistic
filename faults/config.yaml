@@ -1,0 +1,85 @@
+# Fault types and their persistence semantics.
+# "middleware" faults are injected by FaultInjector before the real tool executes.
+# "os" faults are pre-materialized in the sandbox (e.g., chmod 000 on a file)
+# and surface as real OS errors.
+
+fault_types:
+
+  timeout:
+    persistence: transient
+    retry_success_prob: 0.5
+    layer: middleware
+    messages:
+      default: "Error: Request timed out after 30 seconds. The service did not respond."
+
+  permission_denied:
+    persistence: persistent
+    layer: os_and_middleware   # OS chmod for file tools; middleware for others
+    messages:
+      file_read:   "Error: Permission denied. Cannot read file — insufficient permissions."
+      file_write:  "Error: Permission denied. Cannot write to file — insufficient permissions."
+      list_dir:    "Error: Permission denied. Cannot list directory — insufficient permissions."
+      sql_query:   "Error: Permission denied. Cannot access database — file permissions denied."
+      http_request:"Error: 403 Forbidden. You do not have access to this resource."
+      shell_exec:  "Error: Permission denied. Cannot execute script — check file permissions."
+      default:     "Error: Permission denied. You do not have access to this resource."
+
+  not_found:
+    persistence: persistent
+    layer: middleware
+    messages:
+      file_read:   "Error: File not found. The requested file does not exist."
+      list_dir:    "Error: Directory not found. The requested directory does not exist."
+      sql_query:   "Error: Table not found. The specified table does not exist in the database."
+      http_request:"Error: 404 Not Found. The requested resource does not exist."
+      shell_exec:  "Error: Command not found. The script or executable does not exist."
+      default:     "Error: Resource not found."
+
+  malformed_output:
+    persistence: persistent
+    layer: middleware
+    description: >
+      Tool returns truncated or garbled output that cannot be parsed.
+      Applied post-execution: the real call runs but the result is corrupted.
+
+  partial_success:
+    persistence: persistent
+    layer: middleware
+    description: >
+      Tool returns plausible but subtly wrong data.
+      The agent cannot detect this from the response alone.
+
+  network_error:
+    persistence: transient
+    retry_success_prob: 0.5
+    layer: server              # the HTTP server returns 503 for the faulted route
+    messages:
+      http_request: "Error: 503 Service Unavailable. The upstream service is temporarily down."
+      default:      "Error: Network error. Could not reach the remote service."
+
+  auth_required:
+    persistence: persistent
+    layer: server_or_middleware   # a real 401 on http_request targets; injected elsewhere
+    messages:
+      http_request: "Error: 401 Unauthorized. Valid credentials are required to access this resource."
+      sql_query:    "Error: Authentication required. Database access denied — invalid or missing credentials."
+      default:      "Error: Authentication required."
+
+  db_locked:
+    persistence: transient
+    retry_success_prob: 0.5
+    layer: middleware
+    messages:
+      sql_query: "Error: database is locked. Another process is writing to the database. Try again shortly."
+      default:   "Error: Resource locked. Try again shortly."
+
+  nonzero_exit:
+    persistence: persistent
+    layer: middleware
+    description: >
+      shell_exec returns a non-zero exit code with stderr output.
+    messages:
+      shell_exec: >
+        {"status": "ok", "exit_code": 1, "stdout": "",
+         "stderr": "Error: script exited with code 1. Check input data and try again."}
+      default: "Error: Command failed with non-zero exit code."

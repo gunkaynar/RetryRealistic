@@ -1,0 +1,46 @@
+task_id: task_14
+description: >
+  Read data/temperatures.csv. Use awk to extract only the summer months (Jun, Jul, Aug).
+  Calculate the average temperature across those summer readings.
+  Write the average to reports/summer_analysis.txt.
+difficulty: medium
+min_steps: 4
+expected_tools: [file_read, shell_exec, calculator, file_write]
+ground_truth: "Average summer temperature = 32.13°C (6 readings: Jun-Aug)"
+
+fault_target:
+  tool: file_read
+  match: temperatures.csv
+
+filesystem:
+  - path: data/temperatures.csv
+    permissions: "rw-"
+    content: |
+      month,day,temp_celsius
+      Jan,1,2.3
+      Jan,15,-1.5
+      Feb,1,3.8
+      Feb,15,5.2
+      Mar,1,10.1
+      Mar,15,12.4
+      Apr,1,15.7
+      Apr,15,18.3
+      May,1,22.0
+      May,15,24.5
+      Jun,1,28.1
+      Jun,15,30.6
+      Jul,1,33.2
+      Jul,15,35.0
+      Aug,1,34.1
+      Aug,15,31.8
+      Sep,1,26.5
+      Sep,15,23.2
+      Oct,1,17.4
+      Oct,15,14.0
+      Nov,1,8.5
+      Nov,15,5.1
+      Dec,1,2.0
+      Dec,15,-0.3
+  - path: reports/
+    is_dir: true
+    permissions: "rwx"

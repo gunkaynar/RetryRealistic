@@ -1,0 +1,15 @@
+# Secrets
+.env
+
+# Python
+__pycache__/
+*.pyc
+
+# Extracted traces; the committed form is trace_archives/*.tar.gz
+/traces/
+/traces_*/
+
+# Scratch
+logs/
+*.log
+.DS_Store

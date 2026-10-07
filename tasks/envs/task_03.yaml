@@ -1,0 +1,27 @@
+task_id: task_03
+description: >
+  Fetch the current USD to EUR exchange rate from /api/rates.
+  Convert $50,000 USD to euros.
+  Write the result to conversion.txt.
+difficulty: easy
+min_steps: 3
+expected_tools: [http_request, calculator, file_write]
+ground_truth: "$50,000 USD = €46,000 EUR (at rate 0.92)"
+
+fault_target:
+  tool: http_request
+  match: /api/rates
+
+web_pages:
+  - route: /api/rates
+    response:
+      usd_to_eur: 0.92
+      usd_to_gbp: 0.79
+      usd_to_jpy: 151.3
+      source: "FX Market Data"
+      as_of: "2026-05-17"
+
+filesystem:
+  - path: reports/
+    is_dir: true
+    permissions: "rwx"

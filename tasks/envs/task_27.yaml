@@ -1,0 +1,56 @@
+task_id: task_27
+description: >
+  List config/ to find the pricing rules file. Read it to get the markup percentage.
+  Fetch competitor prices for each of our products from /api/competitor with parameter product=NAME.
+  Query products.db for our current prices.
+  For each product, calculate: recommended price = max(cost × markup, competitor_price × 0.95).
+  Write pricing recommendations to reports/pricing_recommendations.txt.
+difficulty: hard
+min_steps: 7
+expected_tools: [list_dir, file_read, http_request, sql_query, calculator, file_write]
+ground_truth: "Markup 40%. Recommendations: Widget A $64.60, Widget B $91.00, Widget C $128.25"
+
+fault_target:
+  tool: http_request
+  match: /api/competitor
+
+filesystem:
+  - path: config/pricing_rules.ini
+    permissions: "r--"
+    content: |
+      [pricing]
+      markup_pct=40
+      currency=USD
+      review_date=2026-05-01
+  - path: config/archived_rules.ini
+    permissions: "r--"
+    content: |
+      [pricing]
+      markup_pct=35
+      currency=USD
+      review_date=2025-01-01
+  - path: reports/
+    is_dir: true
+    permissions: "rwx"
+
+web_pages:
+  - route: /api/competitor
+    query_param: product
+    responses:
+      "widget a": {"product": "Widget A", "competitor_price": 68.00, "competitor": "RivalCo"}
+      "widget b": {"product": "Widget B", "competitor_price": 95.00, "competitor": "RivalCo"}
+      "widget c": {"product": "Widget C", "competitor_price": 135.00, "competitor": "RivalCo"}
+    default_response: {"error": "product not found in competitor data"}
+
+databases:
+  - name: products.db
+    permissions: "rw-"
+    tables:
+      - name: products
+        schema: >
+          CREATE TABLE products
+          (id INTEGER, name TEXT, cost REAL, current_price REAL, category TEXT)
+        rows:
+          - [1, "Widget A", 45.00, 58.00, "Standard"]
+          - [2, "Widget B", 65.00, 82.00, "Premium"]
+          - [3, "Widget C", 90.00, 115.00, "Enterprise"]

@@ -1,0 +1,80 @@
+task_id: task_25
+description: >
+  List config/ to find the database configuration file. Read it to get the database path.
+  Run scripts/validate.py to verify the schema is correct.
+  Query the database for the 10 most recent records.
+  Fetch enrichment data for each record's category from /api/categories.
+  Write a comprehensive report to reports/data_report.txt.
+difficulty: hard
+min_steps: 7
+expected_tools: [list_dir, file_read, shell_exec, sql_query, http_request, file_write]
+ground_truth: "Schema valid. 10 records retrieved. Categories enriched with display names."
+
+fault_target:
+  tool: shell_exec
+  match: validate.py
+
+filesystem:
+  - path: config/
+    is_dir: true
+    permissions: "rwx"
+  - path: config/db_config.ini
+    permissions: "r--"
+    content: |
+      [database]
+      path=data/records.db
+      table=events
+      version=2
+  - path: scripts/validate.py
+    permissions: "r-x"
+    content: |
+      #!/usr/bin/env python3
+      """Validate that records.db has the expected schema."""
+      import sqlite3, sys
+      db_path = sys.argv[1] if len(sys.argv) > 1 else "data/records.db"
+      try:
+          conn = sqlite3.connect(db_path)
+          cursor = conn.execute("SELECT name FROM sqlite_master WHERE type='table'")
+          tables = [r[0] for r in cursor.fetchall()]
+          conn.close()
+          if "events" in tables:
+              print("OK: schema valid. Table 'events' exists.")
+              sys.exit(0)
+          else:
+              print(f"ERROR: expected table 'events', found: {tables}")
+              sys.exit(1)
+      except Exception as e:
+          print(f"ERROR: {e}")
+          sys.exit(1)
+  - path: reports/
+    is_dir: true
+    permissions: "rwx"
+
+databases:
+  - name: data/records.db
+    permissions: "rw-"
+    tables:
+      - name: events
+        schema: >
+          CREATE TABLE events
+          (id INTEGER, ts TEXT, category TEXT, value REAL, source TEXT)
+        rows:
+          - [1,  "2025-01-01T08:00", "A", 1.2,  "sensor1"]
+          - [2,  "2025-01-01T09:00", "B", 3.4,  "sensor2"]
+          - [3,  "2025-01-01T10:00", "A", 2.1,  "sensor1"]
+          - [4,  "2025-01-01T11:00", "C", 5.6,  "sensor3"]
+          - [5,  "2025-01-01T12:00", "B", 4.3,  "sensor2"]
+          - [6,  "2025-01-02T08:00", "A", 1.9,  "sensor1"]
+          - [7,  "2025-01-02T09:00", "C", 6.1,  "sensor3"]
+          - [8,  "2025-01-02T10:00", "B", 3.8,  "sensor2"]
+          - [9,  "2025-01-02T11:00", "A", 2.5,  "sensor1"]
+          - [10, "2025-01-02T12:00", "C", 5.0,  "sensor3"]
+
+web_pages:
+  - route: /api/categories
+    query_param: code
+    responses:
+      a: {"code": "A", "name": "Primary Readings",   "unit": "kPa"}
+      b: {"code": "B", "name": "Secondary Readings", "unit": "kPa"}
+      c: {"code": "C", "name": "Anomaly Flags",      "unit": "index"}
+    default_response: {"error": "category not found"}

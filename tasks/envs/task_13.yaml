@@ -1,0 +1,47 @@
+task_id: task_13
+description: >
+  Query inventory.db for all items with stock below 10 (low-stock items).
+  For each low-stock item, fetch its supplier contact from /api/suppliers with parameter item=NAME.
+  Write a reorder report listing each low-stock item with its supplier info to reports/reorder.txt.
+difficulty: medium
+min_steps: 5
+expected_tools: [sql_query, http_request, file_write]
+ground_truth: "3 low-stock items: Laptop Stand (TechSupply Co), Monitor Arm (ErgoDesk Inc), Desk Lamp (BrightLight Ltd)"
+
+fault_target:
+  tool: sql_query
+  match: items
+
+databases:
+  - name: inventory.db
+    permissions: "rw-"
+    tables:
+      - name: items
+        schema: >
+          CREATE TABLE items
+          (id INTEGER, name TEXT, stock INTEGER, category TEXT,
+           unit_price REAL, supplier TEXT)
+        rows:
+          - [1, "Laptop Stand",  5,   "Office",      45.99, "TechSupply Co"]
+          - [2, "USB Cable",     150, "Electronics",  8.99, "CablePro"]
+          - [3, "Monitor Arm",   8,   "Office",       89.50, "ErgoDesk Inc"]
+          - [4, "Webcam",        200, "Electronics",  49.99, "VisionTech"]
+          - [5, "Desk Lamp",     3,   "Office",       34.99, "BrightLight Ltd"]
+          - [6, "Keyboard",      45,  "Electronics",  79.99, "TypeWell"]
+
+web_pages:
+  - route: /api/suppliers
+    query_param: item
+    responses:
+      laptop stand:  {"supplier": "TechSupply Co",   "email": "orders@techsupply.com",   "lead_days": 5}
+      monitor arm:   {"supplier": "ErgoDesk Inc",    "email": "purchase@ergodesk.com",   "lead_days": 7}
+      desk lamp:     {"supplier": "BrightLight Ltd", "email": "sales@brightlight.com",   "lead_days": 3}
+      usb cable:     {"supplier": "CablePro",        "email": "orders@cablepro.com",     "lead_days": 2}
+      webcam:        {"supplier": "VisionTech",      "email": "supply@visiontech.com",   "lead_days": 4}
+      keyboard:      {"supplier": "TypeWell",        "email": "orders@typewell.com",     "lead_days": 6}
+    default_response: {"error": "supplier not found"}
+
+filesystem:
+  - path: reports/
+    is_dir: true
+    permissions: "rwx"

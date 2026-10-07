@@ -1,0 +1,6 @@
+flask>=3.0
+requests>=2.31
+pyyaml>=6.0
+openai>=1.30        # NVIDIA NIM and OpenRouter agents (OpenAI-compatible endpoints)
+anthropic>=0.28     # Claude Haiku agent, the Monitor, the judge
+matplotlib>=3.7     # analysis/make_figures.py

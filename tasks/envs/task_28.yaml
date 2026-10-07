@@ -1,0 +1,71 @@
+task_id: task_28
+description: >
+  Run scripts/preprocess.py to clean raw_data.csv and produce clean_data.csv.
+  Read clean_data.csv to get the processed records.
+  Query reference.db for category labels (to map category codes to display names).
+  Fetch descriptions for each category from /api/labels with parameter code=CODE.
+  Write a categorized report to reports/categorized_report.txt.
+difficulty: hard
+min_steps: 6
+expected_tools: [shell_exec, file_read, sql_query, http_request, file_write]
+ground_truth: "5 clean records in 2 categories (Alpha, Gamma); Beta has no records after cleaning"
+
+fault_target:
+  tool: shell_exec
+  match: preprocess.py
+
+filesystem:
+  - path: raw_data.csv
+    permissions: "r--"
+    content: |
+      id,value,category,flag
+      1,12.5,CAT_A,valid
+      2,,CAT_B,missing
+      3,8.3,CAT_A,valid
+      4,21.0,CAT_C,valid
+      5,NaN,CAT_B,missing
+      6,5.7,CAT_C,valid
+      7,18.2,CAT_A,valid
+  - path: scripts/preprocess.py
+    permissions: "r-x"
+    content: |
+      #!/usr/bin/env python3
+      """Clean raw_data.csv: remove rows with missing/NaN values, write clean_data.csv."""
+      import csv, sys, os
+      in_path  = sys.argv[1] if len(sys.argv) > 1 else "raw_data.csv"
+      out_path = sys.argv[2] if len(sys.argv) > 2 else "clean_data.csv"
+      kept = 0
+      with open(in_path) as fin, open(out_path, "w", newline="") as fout:
+          reader = csv.DictReader(fin)
+          writer = csv.DictWriter(fout, fieldnames=reader.fieldnames)
+          writer.writeheader()
+          for row in reader:
+              if row.get("value") and row["value"] not in ("", "NaN"):
+                  writer.writerow(row)
+                  kept += 1
+      print(f"Cleaned {kept} rows -> {out_path}")
+  - path: reports/
+    is_dir: true
+    permissions: "rwx"
+
+databases:
+  - name: reference.db
+    permissions: "rw-"
+    tables:
+      - name: categories
+        schema: >
+          CREATE TABLE categories
+          (code TEXT, display_name TEXT, department TEXT)
+        rows:
+          - ["CAT_A", "Alpha", "Operations"]
+          - ["CAT_B", "Beta",  "Finance"]
+          - ["CAT_C", "Gamma", "Engineering"]
+
+web_pages:
+  - route: /api/labels
+    query_param: code
+    responses:
+      cat_a: {"code": "CAT_A", "description": "Primary operational metrics", "priority": "high"}
+      cat_b: {"code": "CAT_B", "description": "Financial performance indicators", "priority": "medium"}
+      cat_c: {"code": "CAT_C", "description": "Engineering throughput measures", "priority": "high"}
+    default_response: {"error": "label not found"}

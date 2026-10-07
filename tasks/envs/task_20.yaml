@@ -1,0 +1,38 @@
+task_id: task_20
+description: >
+  Query employees.db to get each department and the count of employees in it.
+  Then query again to get the average salary per department.
+  Write a department analysis report (dept name, headcount, avg salary) to reports/dept_analysis.txt.
+difficulty: medium
+min_steps: 4
+expected_tools: [sql_query, sql_query, calculator, file_write]
+ground_truth: "Engineering: 5 staff, avg $94,600; Marketing: 2 staff, avg $73,500; Sales: 2 staff, avg $69,500; HR: 1 staff, avg $65,000"
+
+fault_target:
+  tool: sql_query
+  match: employees
+
+databases:
+  - name: employees.db
+    permissions: "rw-"
+    tables:
+      - name: employees
+        schema: >
+          CREATE TABLE employees
+          (id INTEGER, name TEXT, department TEXT, salary REAL, years INTEGER)
+        rows:
+          - [1,  "Alice",   "Engineering", 95000, 4]
+          - [2,  "Bob",     "Marketing",   72000, 3]
+          - [3,  "Charlie", "Engineering", 88000, 6]
+          - [4,  "Diana",   "Sales",       68000, 2]
+          - [5,  "Eve",     "Engineering", 102000, 8]
+          - [6,  "Frank",   "Marketing",   75000, 5]
+          - [7,  "Grace",   "Engineering", 91000, 5]
+          - [8,  "Hank",    "Sales",       71000, 3]
+          - [9,  "Ivan",    "Engineering", 97000, 7]
+          - [10, "Judy",    "HR",          65000, 4]
+
+filesystem:
+  - path: reports/
+    is_dir: true
+    permissions: "rwx"

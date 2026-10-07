@@ -1,0 +1,36 @@
+task_id: task_18
+description: >
+  Read portfolio.csv to get each stock ticker and share count.
+  Fetch the current price for each ticker from /api/prices with parameter ticker=SYMBOL.
+  Calculate each position's value (shares × price) and the total portfolio value.
+  Save to reports/portfolio_value.txt.
+difficulty: medium
+min_steps: 6
+expected_tools: [file_read, http_request, calculator, file_write]
+ground_truth: "Total portfolio: AAPL 50×$182.50=$9,125 + GOOGL 30×$141.20=$4,236 + MSFT 80×$415.00=$33,200 = $46,561"
+
+fault_target:
+  tool: file_read
+  match: portfolio.csv
+
+web_pages:
+  - route: /api/prices
+    query_param: ticker
+    responses:
+      aapl:  {"ticker": "AAPL",  "price": 182.50, "currency": "USD"}
+      googl: {"ticker": "GOOGL", "price": 141.20, "currency": "USD"}
+      msft:  {"ticker": "MSFT",  "price": 415.00, "currency": "USD"}
+      amzn:  {"ticker": "AMZN",  "price": 198.75, "currency": "USD"}
+    default_response: {"error": "ticker not found"}
+
+filesystem:
+  - path: portfolio.csv
+    permissions: "rw-"
+    content: |
+      ticker,shares,purchased_price
+      AAPL,50,155.20
+      GOOGL,30,132.80
+      MSFT,80,390.00
+  - path: reports/
+    is_dir: true
+    permissions: "rwx"
