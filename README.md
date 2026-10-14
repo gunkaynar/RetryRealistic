@@ -201,6 +201,19 @@ Each trace is a JSON file at `<out>/<task>/<model>/<fault>_seed<n>.json` with:
 
 The paper's 13,740 traces are in `trace_archives/`.
 
+## Citation
+
+```bibtex
+@inproceedings{
+kaynar2026when,
+title={When Tools Fail, Agents Fabricate: Silent Failure and Verification-First Oversight in Tool-Using {LLM} Agents},
+author={G{\"u}n Kaynar and Boshen Yan and Carl Kingsford},
+booktitle={NeurIPS 2026 Workshop Who Verifies the Agents? Toward Reliable Agent Development},
+year={2026},
+url={https://openreview.net/forum?id=HLCpv21u07}
+}
+```
+
 ## License
 
 MIT; see `LICENSE`.
